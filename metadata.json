@@ -1,0 +1,5 @@
+{
+  "name": "AgroLink",
+  "description": "A simple, offline-capable matching platform connecting Farmers and Vendors anonymously with AI assistance.",
+  "requestFramePermissions": []
+}

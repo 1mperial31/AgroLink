@@ -131,6 +131,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     collapseSidebar: "Collapse Sidebar",
     selectOption: "Select...",
     photo: "Photo",
+    ratedBy: "Rated by",
     // Crops
     Wheat: "Wheat",
     Rice: "Rice",
@@ -233,6 +234,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     collapseSidebar: "साइडबार संक्षिप्त करें",
     selectOption: "चुनें...",
     photo: "फोटो",
+    ratedBy: "रेट किया गया",
     // Crops
     Wheat: "गेहूं",
     Rice: "चावल",
@@ -335,6 +337,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     collapseSidebar: "साइडबार कमी करा",
     selectOption: "निवडा...",
     photo: "फोटो",
+    ratedBy: "रेत केले",
     // Crops
     Wheat: "गहू",
     Rice: "तांदूळ",
@@ -437,6 +440,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     collapseSidebar: "সাইডबार সঙ্কুচিত করুন",
     selectOption: "নির্বাচন করুন...",
     photo: "ছবি",
+    ratedBy: "রেট করেছেন",
     // Crops
     Wheat: "গম",
     Rice: "চাল",
@@ -539,6 +543,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     collapseSidebar: "பக்கப்பட்டியை சுருக்கவும்",
     selectOption: "தேர்ந்தெடு...",
     photo: "புகைப்படம்",
+    ratedBy: "மதிப்பிட்டவர்",
     // Crops
     Wheat: "கோதுமை",
     Rice: "அரிசி",
@@ -641,6 +646,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     collapseSidebar: "సైడ్‌బార్‌ను కుదించండి",
     selectOption: "ఎంచుకోండి...",
     photo: "ఫోటో",
+    ratedBy: "రేటింగ్ ఇచ్చినవారు",
     // Crops
     Wheat: "గోధుమలు",
     Rice: "బియ్యం",
@@ -743,6 +749,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     collapseSidebar: "ಸೈಡ್‌ಬಾರ್ ಕುಗ್ಗಿಸಿ",
     selectOption: "ಆರಿಸಿ...",
     photo: "ಫೋಟೋ",
+    ratedBy: "ರೇಟ್ ಮಾಡಿದವರು",
     // Crops
     Wheat: "ಗೋಧಿ",
     Rice: "ಅಕ್ಕಿ",
@@ -845,6 +852,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     collapseSidebar: "સાઇડબાર સંકુચિત કરો",
     selectOption: "પસંદ કરો...",
     photo: "ફોટો",
+    ratedBy: "દ્વારા રેટેડ",
     // Crops
     Wheat: "ઘઉં",
     Rice: "ચોખા",
@@ -947,6 +955,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     collapseSidebar: "ਸਾਈਡਬਾਰ ਸਮੇਟੋ",
     selectOption: "ਚੁਣੋ...",
     photo: "ਫੋਟੋ",
+    ratedBy: "ਦੁਆਰਾ ਦਰਜਾ ਦਿੱਤਾ",
     // Crops
     Wheat: "ਕਣਕ",
     Rice: "ਚੌਲ",
@@ -1049,6 +1058,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     collapseSidebar: "സൈഡ്‌ബാർ ചുരുക്കുക",
     selectOption: "തിരഞ്ഞെടുക്കുക...",
     photo: "ഫോട്ടോ",
+    ratedBy: "റേറ്റുചെയ്തത്",
     // Crops
     Wheat: "ഗോതമ്പ്",
     Rice: "അരി",

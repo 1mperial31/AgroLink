@@ -1,10 +1,10 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useMemo } from 'react';
 import { AppContext } from '../App';
 import { storageService } from '../services/storageService';
 import { Card, Button, Badge, Select, Input } from '../components/UI';
 import { useLocation } from 'react-router-dom';
-import { UserRole, Rating, CropItem } from '../types';
-import { Star, MapPin, Shield, AlertTriangle, Plus, X, Check, Edit2, Trash2, Save } from 'lucide-react';
+import { UserRole, Rating, CropItem, User } from '../types';
+import { Star, MapPin, Shield, AlertTriangle, Plus, X, Check, Edit2, Trash2, Save, User as UserIcon } from 'lucide-react';
 import { CROP_TYPES, LOCATIONS } from '../constants';
 
 export const Profile: React.FC = () => {
@@ -15,6 +15,7 @@ export const Profile: React.FC = () => {
 
   const [ratingValue, setRatingValue] = useState(5);
   const [ratingComment, setRatingComment] = useState('');
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   // Add Item State
   const [isAdding, setIsAdding] = useState(false);
@@ -27,32 +28,42 @@ export const Profile: React.FC = () => {
     location: ''
   });
 
-  if (!currentUser) return null;
+  const [profileUser, setProfileUser] = useState<User | null>(null);
 
-  const isOwnProfile = !profileId || profileId === currentUser.id;
-  const user = isOwnProfile ? currentUser : storageService.getUserById(profileId!);
+  // Memoize allUsers to avoid re-parsing on every render, update on refreshTrigger
+  const allUsers = useMemo(() => storageService.getUsers(), [refreshTrigger]);
 
+  const isOwnProfile = !profileId || (currentUser && profileId === currentUser.id);
+
+  // Load user data into local state
   useEffect(() => {
-    if (user && isOwnProfile) {
+    if (isOwnProfile && currentUser) {
+      setProfileUser(currentUser);
       setEditFormData({
-        realName: user.realName,
-        location: user.location
+        realName: currentUser.realName,
+        location: currentUser.location
       });
+    } else if (profileId) {
+      const u = storageService.getUserById(profileId);
+      setProfileUser(u || null);
     }
-  }, [user, isOwnProfile]);
+  }, [profileId, isOwnProfile, currentUser, refreshTrigger]);
 
-  if (!user) return <div>User not found</div>;
+  if (!currentUser) return null;
+  if (!profileUser) return <div>User not found</div>;
 
   const handleRate = () => {
-    if (!user.id) return;
+    if (!profileUser.id) return;
     const newRating: Rating = {
       fromUserId: currentUser.id,
       value: ratingValue,
       comment: ratingComment,
       timestamp: Date.now()
     };
-    storageService.addRating(user.id, newRating);
-    window.location.reload(); // Simple refresh to show new data
+    storageService.addRating(profileUser.id, newRating);
+    setRatingComment('');
+    setRatingValue(5);
+    setRefreshTrigger(prev => prev + 1); // Trigger data reload without page reload
   };
 
   const handleAddItem = () => {
@@ -68,6 +79,7 @@ export const Profile: React.FC = () => {
     const updatedUser = { ...currentUser, items: [...currentUser.items, itemToAdd] };
     storageService.saveUser(updatedUser);
     login(currentUser.id); // Refresh context
+    setRefreshTrigger(prev => prev + 1);
     
     setIsAdding(false);
     setNewItem({ name: CROP_TYPES[0], price: '', quantity: '' });
@@ -82,6 +94,7 @@ export const Profile: React.FC = () => {
     };
     storageService.saveUser(updatedUser);
     login(currentUser.id); // Refresh context
+    setRefreshTrigger(prev => prev + 1);
     setIsEditing(false);
   };
 
@@ -93,6 +106,7 @@ export const Profile: React.FC = () => {
       const updatedUser = { ...currentUser, items: newItems };
       storageService.saveUser(updatedUser);
       login(currentUser.id);
+      setRefreshTrigger(prev => prev + 1);
     }
   };
 
@@ -103,7 +117,7 @@ export const Profile: React.FC = () => {
            <div className="absolute -bottom-12 left-6">
               <div className="w-24 h-24 bg-white rounded-full p-1 shadow-lg">
                 <div className="w-full h-full bg-gray-200 rounded-full flex items-center justify-center text-2xl font-bold text-gray-500">
-                  {user.anonymousName.charAt(0)}
+                  {profileUser.anonymousName.charAt(0)}
                 </div>
               </div>
            </div>
@@ -112,8 +126,8 @@ export const Profile: React.FC = () => {
           <div className="flex justify-between items-start">
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                {user.anonymousName}
-                <Badge color={user.role === UserRole.FARMER ? 'green' : 'blue'}>{user.role === UserRole.FARMER ? t('farmer') : t('vendor')}</Badge>
+                {profileUser.anonymousName}
+                <Badge color={profileUser.role === UserRole.FARMER ? 'green' : 'blue'}>{profileUser.role === UserRole.FARMER ? t('farmer') : t('vendor')}</Badge>
               </h1>
               
               {isEditing ? (
@@ -142,8 +156,8 @@ export const Profile: React.FC = () => {
                 </div>
               ) : (
                 <div className="flex items-center gap-4 text-gray-600 mt-2 text-sm">
-                  <span className="flex items-center gap-1"><MapPin size={16} /> {user.location}</span>
-                  <span className="flex items-center gap-1 text-yellow-600 font-bold"><Star size={16} className="fill-current" /> {user.trustScore} / 5.0</span>
+                  <span className="flex items-center gap-1"><MapPin size={16} /> {profileUser.location}</span>
+                  <span className="flex items-center gap-1 text-yellow-600 font-bold"><Star size={16} className="fill-current" /> {profileUser.trustScore} / 5.0</span>
                 </div>
               )}
             </div>
@@ -209,7 +223,7 @@ export const Profile: React.FC = () => {
                 </div>
               )}
 
-              {user.items.map((item, i) => (
+              {profileUser.items.map((item, i) => (
                 <div key={i} className="mb-3 p-3 bg-gray-50 rounded-lg group relative">
                   <p className="text-xs text-gray-500 uppercase">{t('cropLabel')}</p>
                   <p className="font-medium text-gray-800">{item.name}</p>
@@ -236,17 +250,17 @@ export const Profile: React.FC = () => {
                   )}
                 </div>
               ))}
-              {user.items.length === 0 && <p className="text-gray-400 text-sm italic">{t('noItems')}</p>}
+              {profileUser.items.length === 0 && <p className="text-gray-400 text-sm italic">{t('noItems')}</p>}
             </div>
 
             <div>
               <h3 className="font-bold text-gray-800 mb-3 border-b pb-2">{t('trustSafety')}</h3>
               <div className="space-y-2">
                  <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 p-2 rounded-lg">
-                   <Shield size={16} /> {t('verifiedMember')} {new Date(user.joinedAt).getFullYear()}
+                   <Shield size={16} /> {t('verifiedMember')} {new Date(profileUser.joinedAt).getFullYear()}
                  </div>
                  <p className="text-sm text-gray-600">
-                   {user.ratings.length} {t('reviews')}
+                   {profileUser.ratings.length} {t('reviews')}
                  </p>
               </div>
             </div>
@@ -279,20 +293,26 @@ export const Profile: React.FC = () => {
           </Card>
         )}
 
-        {user.ratings.map((r, idx) => (
-          <Card key={idx} className="p-4">
-            <div className="flex justify-between mb-1">
-              <div className="flex gap-1 text-yellow-400">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} size={14} className={i < r.value ? "fill-current" : "text-gray-200"} />
-                ))}
+        {profileUser.ratings.map((r, idx) => {
+          const reviewer = allUsers.find(u => u.id === r.fromUserId);
+          return (
+            <Card key={idx} className="p-4">
+              <div className="flex justify-between mb-1">
+                <div className="flex gap-1 text-yellow-400">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} size={14} className={i < r.value ? "fill-current" : "text-gray-200"} />
+                  ))}
+                </div>
+                <span className="text-xs text-gray-400">{new Date(r.timestamp).toLocaleDateString()}</span>
               </div>
-              <span className="text-xs text-gray-400">{new Date(r.timestamp).toLocaleDateString()}</span>
-            </div>
-            <p className="text-gray-700 text-sm">"{r.comment}"</p>
-          </Card>
-        ))}
-        {user.ratings.length === 0 && <p className="text-gray-400 text-sm">{t('noReviews')}</p>}
+              <p className="text-gray-700 text-sm mb-2">"{r.comment}"</p>
+              <p className="text-xs text-gray-500 flex items-center gap-1">
+                 <UserIcon size={12} /> {t('ratedBy')} {reviewer?.anonymousName || t('anonymous')}
+              </p>
+            </Card>
+          );
+        })}
+        {profileUser.ratings.length === 0 && <p className="text-gray-400 text-sm">{t('noReviews')}</p>}
       </div>
     </div>
   );
